@@ -74,7 +74,7 @@ def manual_ipv4_infrastructure_allocation(anm):
     log.info('Using specified IPv4 infrastructure allocation')
 
     for node in g_ipv4.l3devices():
-        for interface in node.physical_interfaces():
+        for interface in node.edge_interfaces():
             if not interface['input'].is_bound:
                 continue  # unbound interface
             if not interface['ipv4'].is_bound:
@@ -261,7 +261,7 @@ def build_ipv4(anm, infrastructure=True):
 
     manual_alloc_devices = set()
     for device in l3_devices:
-        physical_interfaces = list(device.physical_interfaces())
+        physical_interfaces = list(device.edge_interfaces())
         allocated = list(
             interface.ipv4_address for interface in physical_interfaces
             if interface.is_bound and interface['ipv4'].allocate is not False
@@ -283,9 +283,9 @@ def build_ipv4(anm, infrastructure=True):
         unallocated = []
         for node in l3_devices:
             # TODO: make these inverse sets
-            allocated += sorted([i for i in node.physical_interfaces()
+            allocated += sorted([i for i in node.edge_interfaces()
                                  if i.is_bound and i.ipv4_address])
-            unallocated += sorted([i for i in node.physical_interfaces()
+            unallocated += sorted([i for i in node.edge_interfaces()
                                    if i.is_bound and not i.ipv4_address
                                    and i['ipv4'].is_bound])
 

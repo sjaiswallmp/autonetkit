@@ -448,7 +448,7 @@ class IpTree(object):
                             sub_child.ip_address = iterhosts.next()
                             sub_child.subnet = node.subnet
                     elif sub_child.is_interface() \
-                            and sub_child.host.is_physical:
+                            and (sub_child.host.is_physical or interface.is_portchannel):
 
                         # physical interface
 
@@ -472,7 +472,7 @@ class IpTree(object):
                     for sub_child in sorted(sub_children):
                         if sub_child.is_interface():
                             interface = sub_child.host
-                            if interface.is_physical:
+                            if interface.is_physical or interface.is_portchannel:
 
                                 # physical interface
 
@@ -600,7 +600,7 @@ class IpTree(object):
                 interface.loopback = n.ip_address
                 loopback_255 = netaddr.IPNetwork("%s/32" % n.ip_address)
                 interface.subnet = loopback_255
-            elif interface.is_physical:
+            elif interface.is_physical or interface.is_portchannel:
                 interface.ip_address = n.ip_address
                 interface.subnet = n.subnet
 

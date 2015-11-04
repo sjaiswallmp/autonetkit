@@ -268,12 +268,19 @@ def build_phy(anm):
     g_phy = anm['phy']
 
     g_phy.data.enable_routing = g_in.data.enable_routing
+    if g_in.data.mgmt_block:
+        g_phy.data['mgmt_block'] = g_in.data['mgmt_block']
+
+    if g_in.data.vpcid_block:
+        g_phy.data['vpcid_block'] = g_in.data['vpcid_block']
+
     if g_phy.data.enable_routing is None:
         g_in.data.enable_routing = True  # default if not set
 
-    g_phy.add_nodes_from(g_in, retain=['label', 'update', 'device_type',
+    g_phy.add_nodes_from(g_in, retain=['label', 'update', 'device_type', 'devsubtype',
                                        'asn', 'specified_int_names', 'x', 'y',
-                                       'device_subtype', 'platform', 'host', 'syntax'])
+                                       'device_subtype', 'platform', 'host', 'syntax',
+                                       'profile', 'syslog'])
 
     if g_in.data.Creator == "Topology Zoo Toolset":
         ank_utils.copy_attr_from(g_in, g_phy, "Network")

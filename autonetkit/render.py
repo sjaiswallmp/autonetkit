@@ -229,14 +229,20 @@ def render_node(node):
 def render(nidb):
     # TODO: config option for single or multi threaded
     log.debug("Rendering Configuration Files")
-    render_single(nidb)
+    dst_folder = render_single(nidb)
     render_topologies(nidb)
+    return dst_folder
 
 
 def render_single(nidb):
     for node in sorted(nidb):
         render_node(node)
 
+    dst_folder = None
+    if node is not None:
+        dst_folder = node.render.dst_folder
+
+    return dst_folder
 
 def render_topologies(nidb):
     for topology in nidb.topologies():

@@ -124,18 +124,23 @@ class NmGraph(OverlayBase):
                     self._graph.node[node_id]['_ports'] = {
                         0: {'description': 'loopback', 'category': 'loopback'}}
                 else:
-                    interface_data = {'description': None,
-                                      'category': 'physical'}
-                    # need to do dict() to copy, otherwise all point to same memory
-                    # location -> clobber
-                    # TODO: update this to also get subinterfaces?
-                    # TODO: should description and category auto fall through?
-                    data = dict((key, dict(interface_data)) for key in
-                                input_interfaces)
                     ports = {}
+                    phy_port_idx = 0
                     for key, vals in input_interfaces.items():
-                        port_data = {}
-                        ports[key] = dict(vals)
+                            ports[phy_port_idx] = dict(vals)
+                            phy_port_idx += 1
+
+                    for port_key, port_vals in ports.items():
+                        if 'subcategory' in port_vals \
+                            and 'port-channel' in port_vals['subcategory']:
+                            port_vals['interfaces'] = list()
+                            for port_key_in, port_vals_in in ports.items():
+                                if 'subcategory' in port_vals_in \
+                                        and 'physical' in port_vals_in['subcategory']:
+                                    if port_vals_in['id'] in port_vals['members']:
+                                        port_vals['interfaces'].append(port_vals_in)
+                                        port_vals_in['portchannel'] = dict((key, port_vals.get(key)) \
+                                                                           for key in ['description', 'id', 'members'])
 
                     # force 0 to be loopback
                     # TODO: could warn if already set

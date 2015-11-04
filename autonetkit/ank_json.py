@@ -258,7 +258,7 @@ def jsonify_anm_with_graphics(anm, nidb=None):
     # the attributes to copy
     # TODO: check behaviour for None if explicitly set
     # TODO: need to check if attribute is set in overlay..... using API
-    copy_attrs = ["x", "y", "asn", "label", "device_type", "device_subtype"]
+    copy_attrs = ["x", "y", "asn", "label", "device_type", "device_subtype", "profile", "syslog"]
     for node, in_data in phy_graph.nodes(data=True):
         out_data = {key: in_data.get(key) for key in copy_attrs
                     if key in in_data}

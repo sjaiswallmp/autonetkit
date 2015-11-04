@@ -135,6 +135,18 @@ class NmNode(AnkElement):
     def physical_interfaces(self, *args, **kwargs):
         """"""
         kwargs['category'] = "physical"
+        kwargs['subcategory'] = "physical"
+        return self.interfaces(*args, **kwargs)
+
+    def portchannel_interfaces(self, *args, **kwargs):
+        """"""
+        kwargs['category'] = "physical"
+        kwargs['subcategory'] = "port-channel"
+        return self.interfaces(*args, **kwargs)
+
+    def edge_interfaces(self, *args, **kwargs):
+        """"""
+        kwargs['category'] = "physical"
         return self.interfaces(*args, **kwargs)
 
     def loopback_interfaces(self, *args, **kwargs):
@@ -212,7 +224,7 @@ class NmNode(AnkElement):
     # TODO: interface function access needs to be cleaned up
 
     def _add_interface(self, description=None, category='physical',
-                       **kwargs):
+                       subcategory='physical', **kwargs):
         """"""
 
         data = dict(kwargs)
@@ -220,6 +232,7 @@ class NmNode(AnkElement):
         if self.overlay_id != 'phy' and self['phy']:
             next_id = self['phy']._next_int_id()
             self['phy']._ports[next_id] = {'category': category,
+                                           'subcategory': subcategory, 
                                            'description': description}
 
             # TODO: fix this workaround for not returning description from phy
@@ -229,6 +242,7 @@ class NmNode(AnkElement):
         else:
             next_id = self._next_int_id()
             data['category'] = category  # store category on node
+            data['subcategory'] = subcategory  # store category on node
             data['description'] = description
 
         self._ports[next_id] = data

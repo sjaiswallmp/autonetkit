@@ -53,6 +53,8 @@ def manage_network(input_graph_string, timestamp, build=True,
 
     import autonetkit.build_network as build_network
 
+    dst_folder = None
+
     if build:
         if input_graph_string:
             graph = build_network.load(input_graph_string)
@@ -96,6 +98,7 @@ def manage_network(input_graph_string, timestamp, build=True,
                 log.debug('Unable to validate topologies',
                           exc_info=True)
 
+
     if compile:
         if archive:
             anm.save()
@@ -112,7 +115,7 @@ def manage_network(input_graph_string, timestamp, build=True,
         if render:
             import time
             #start = time.clock()
-            autonetkit.render.render(nidb)
+            dst_folder = autonetkit.render.render(nidb)
             # print time.clock() - start
             #import autonetkit.render2
             #start = time.clock()
@@ -146,6 +149,7 @@ def manage_network(input_graph_string, timestamp, build=True,
         deploy_network(anm, nidb, input_graph_string)
 
     log.info('Configuration engine completed')  # TODO: finished what?
+    return dst_folder
 
 
 #@do_cprofile
@@ -162,6 +166,13 @@ def compile_network(anm):
             import autonetkit.compilers.platform.netkit as pl_netkit
             platform_compiler = pl_netkit.NetkitCompiler(nidb, anm,
                                                          host)
+        elif platform == 'cisco':
+            try:
+                import autonetkit.compilers.platform.cisco as pl_cisco
+                platform_compiler = pl_cisco.CiscoCompiler(nidb, anm,
+                                                           host)
+            except ImportError:
+                log.debug('Unable to load cisco platform compiler')
         elif platform == 'VIRL':
             try:
                 import autonetkit_cisco.compilers.platform.cisco as pl_cisco

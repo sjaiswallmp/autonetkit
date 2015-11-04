@@ -9,16 +9,18 @@ class CustomAdapter(logging.LoggerAdapter):
 
 ank_logger = logging.getLogger("ANK")
 if not ank_logger.handlers:
-    console_formatter = logging.Formatter("%(levelname)-1s %(message)s")
-    ch = logging.StreamHandler()
-    #ch.setLevel(logging.INFO)
-    ch.setFormatter(console_formatter)
-    ch.setLevel(logging.DEBUG)
-    ank_logger.addHandler(ch)
+    console_logging = config.settings['Logging']['console']
+    if console_logging:
+        console_formatter = logging.Formatter("%(levelname)-1s %(message)s")
+        ch = logging.StreamHandler()
+        #ch.setLevel(logging.INFO)
+        ch.setFormatter(console_formatter)
+        ch.setLevel(logging.DEBUG)
+        ank_logger.addHandler(ch)
 
     file_logging = config.settings['Logging']['file']
     if file_logging:
-        LOG_FILENAME =  "autonetkit.log"
+        LOG_FILENAME =  "./ank.log"
         #fh = logging.FileHandler(LOG_FILENAME)
         LOG_SIZE = 2097152 # 2 MB
         fh = logging.handlers.RotatingFileHandler(

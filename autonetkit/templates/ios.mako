@@ -59,6 +59,50 @@ line con 0
 cdp run
 !
 %endif
+##mgmt ip
+% if node.mgmt:
+interface mgmt0
+ vrf member management
+ ip address ${node.mgmt.ip}
+% endif
+!
+##NTP
+% if node.ntp:
+ntp
+  ntp server ${node.ntp.server_ip}
+% endif
+!
+##syslog
+% if node.syslog:
+syslog
+  enabled ${node.syslog.enabled}
+  severity ${node.syslog.severity}
+% endif
+!
+
+##SNMP
+% if node.snmp:
+snmp
+  enabled ${node.snmp.enabled}
+  % for user in node.snmp.users:
+    snmp-server user ${user.user} auth ${user.auth} ${user.pwd} priv ${user.priv}
+  % endfor
+
+  % for server in node.snmp.server:
+    snmp-server host ${server.ip} traps version ${server.version} udp_port ${server.udp_port} ${server.community}
+  %endfor
+
+  % for feature in node.snmp.features:
+    enable traps ${feature.id}
+  %endfor
+% endif
+!
+% if node.vpc:
+feature vpc
+vpc domain ${node.vpc.domain_id}
+ peer-keepalive destination ${node.vpc.dest} source ${node.mgmt.ip} vrf management
+% endif
+!
 % if node.use_onepk:
 !
 username cisco privilege 15 password 0 cisco
@@ -108,6 +152,20 @@ interface ${interface.id}
   description ${interface.description}
   % if interface.comment:
   ! ${interface.comment}
+  %endif
+  % if interface.channel_group:
+    % if interface.member_port_vpc:
+  switchport mode fabric path
+  channel-group ${interface.channel_group} mode active
+    %else:
+  channel-group ${interface.channel_group}
+    %endif
+  %endif
+  % if interface.vpc_member_id:
+    vpc ${interface.vpc_member_id}
+  %endif
+  % if interface.virt_port_channel:
+  vpc peer link
   %endif
   % if interface.mtu:
   mtu ${interface.mtu}

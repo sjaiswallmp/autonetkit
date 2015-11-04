@@ -94,6 +94,18 @@ class NmPort(AnkElement):
                 return # can't get from this overlay or phy -> not found
 
     @property
+    def members(self):
+        """Returns  id of node, falls-through to phy if not set on this overlay
+
+        """
+        #TODO: make generic function for fall-through properties stored on the anm
+        key = "members"
+        if key in self._interface:
+                return self._interface.get(key)
+        else:
+                return  # Can't fall from phy -> phy (loop)
+
+    @property
     def is_bound(self):
         # TODO: make this a function
         """Returns if this interface is bound to an edge on this layer"""
@@ -168,7 +180,15 @@ class NmPort(AnkElement):
     def is_physical(self):
         """"""
 
-        return self.category == 'physical' or self.phy.category == 'physical'
+        return self.category == 'physical' and self.subcategory == 'physical' \
+               or self.phy.category == 'physical' and self.phy.subcategory == 'physical'
+
+    @property
+    def is_portchannel(self):
+        """"""
+
+        return self.category == 'physical' and self.subcategory == 'port-channel' \
+               or self.phy.category == 'physical' and self.phy.subcategory == 'port-channel'
 
     @property
     def description(self):

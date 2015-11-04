@@ -30,6 +30,9 @@ def parse_options(argument_string=None):
                              help="Load topology from STDIN")
 
     parser.add_argument(
+        '--portchannel', '-pc', default=None, help = "Provide feature configuration file")
+
+    parser.add_argument(
         '--monitor', '-m', action="store_true", default=False,
         help="Monitor input file for changes")
     parser.add_argument('--debug', action="store_true",
@@ -72,8 +75,9 @@ def parse_options(argument_string=None):
 
 
 def main(options):
-    settings = config.settings
 
+    settings = config.settings
+    dst_folder = None
     if options.vis_uuid:
         config.settings['Http Post']['uuid'] = options.vis_uuid
 
@@ -93,12 +97,12 @@ def main(options):
     if options.target == "cisco":
         # output target is Cisco
         log.info("Setting output target as Cisco")
-        settings['Graphml']['Node Defaults']['platform'] = "VIRL"
+        settings['Graphml']['Node Defaults']['platform'] = "cisco"
         settings['Graphml']['Node Defaults']['host'] = "internal"
-        settings['Graphml']['Node Defaults']['syntax'] = "ios_xr"
+        settings['Graphml']['Node Defaults']['syntax'] = "ios"
         settings['Compiler']['Cisco']['to memory'] = 1
         settings['General']['deploy'] = 1
-        settings['Deploy Hosts']['internal'] = {'VIRL':
+        settings['Deploy Hosts']['internal'] = {'cisco':
                                                 {'deploy': 1}}
 
     if options.debug or settings['General']['debug']:
@@ -143,10 +147,10 @@ def main(options):
         timestamp = now.strftime("%Y%m%d_%H%M%S_%f")
     else:
         log.info("No input file specified. Exiting")
-        return
+        return None
 
     try:
-        workflow.manage_network(input_string, timestamp,
+        dst_folder = workflow.manage_network(input_string, timestamp,
                        grid=options.grid, **build_options)
     except Exception, err:
         log.error(
@@ -154,7 +158,7 @@ def main(options):
         log.debug("Error generating network configurations", exc_info=True)
         if settings['General']['stack_trace']:
             print traceback.print_exc()
-        sys.exit("Unable to build configurations.")
+        # sys.exit("Unable to build configurations.")
 
 # TODO: work out why build_options is being clobbered for monitor mode
     build_options['monitor'] = options.monitor or settings['General'][
@@ -176,7 +180,7 @@ def main(options):
                         log.info("Input graph updated, recompiling network")
                         with open(options.file, "r") as fh:
                             input_string = fh.read()  # read updates
-                        workflow.manage_network(input_string,
+                        dst_folder = workflow.manage_network(input_string,
                                        timestamp, build_options)
                         log.info("Monitoring for updates...")
                     except Exception, e:
@@ -186,10 +190,13 @@ def main(options):
         except KeyboardInterrupt:
             log.info("Exiting")
 
+    return dst_folder
+
 def console_entry():
     """If come from console entry point"""
     args = parse_options()
-    main(args)
+    x = main(args)
+    print x
 
 if __name__ == "__main__":
     try:

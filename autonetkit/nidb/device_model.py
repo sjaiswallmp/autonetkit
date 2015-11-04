@@ -91,7 +91,7 @@ class DeviceModel(DmBase):
         g_phy = network_model['phy']
         g_graphics = network_model['graphics']
         self.add_nodes_from(g_phy, retain=['label', 'host', 'platform',
-                                           "syntax", 'Network', 'update', 'asn', ])
+                                           "syntax", 'Network', 'update', 'asn', 'profile', 'syslog'])
 
         self.add_edges_from(g_phy.edges())
         self.copy_graphics(network_model)

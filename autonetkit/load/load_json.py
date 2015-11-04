@@ -124,6 +124,15 @@ def load_json(input_data, defaults = True):
     graph = simple_to_nx(data)
     # TODO: any required pre-processing goes here
 
+    if 'profiles' in data:
+        graph.graph['profiles'] = data['profiles']
+
+    if 'mgmt_ip_block' in data:
+        graph.graph['mgmt_block'] = data['mgmt_ip_block']
+
+    if 'vpcid_block' in data:
+        graph.graph['vpcid_block'] = data['vpcid_block']
+
     if defaults:
         ank_graph_defaults = settings['JSON']['Graph Defaults']
         for (key, val) in ank_graph_defaults.items():
